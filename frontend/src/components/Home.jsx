@@ -3,8 +3,11 @@ import LiquidEther from './LiquidEther';
 import TrueFocus from './TrueFocus';
 import DecayCard from './DecayCard';
 import PixelCard from './PixelCard';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <div style={{ width: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
@@ -42,7 +45,9 @@ const Home = () => {
           Turn your data into insights and smart predictions
         </div>
         <div className="mt-6 flex items-center gap-4">
-          <button className="px-6 py-3 rounded-full bg-white text-black font-semibold shadow-sm hover:opacity-90 transition">
+          <button className="px-6 py-3 rounded-full bg-white text-black font-semibold shadow-sm hover:opacity-90 transition" 
+            onClick={() => navigate('/start')}
+          >
             Get Started
           </button>
           <button
