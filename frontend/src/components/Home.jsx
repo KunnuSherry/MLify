@@ -45,14 +45,11 @@ const Home = () => {
           Turn your data into insights and smart predictions
         </div>
         <div className="mt-6 flex items-center gap-4">
-<<<<<<< HEAD
           <button 
             className="px-6 py-3 rounded-full bg-white text-black font-semibold shadow-sm hover:opacity-90 transition"
             onClick={() => window.location.href = '/analysis'}
-=======
           <button className="px-6 py-3 rounded-full bg-white text-black font-semibold shadow-sm hover:opacity-90 transition" 
             onClick={() => navigate('/start')}
->>>>>>> 61554bcd022c9e386f1f0777a7e26a5afec6b18d
           >
             Get Started
           </button>
