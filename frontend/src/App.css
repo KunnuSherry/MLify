@@ -119,3 +119,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom table styles for data preview */
+.table {
+  @apply w-full border-collapse;
+}
+
+.table th,
+.table td {
+  @apply border border-white/20 px-4 py-2 text-left;
+}
+
+.table th {
+  @apply bg-white/10 text-white font-semibold;
+}
+
+.table td {
+  @apply text-white/80;
+}
+
+.table tbody tr:nth-child(even) {
+  @apply bg-white/5;
+}
+
+.table tbody tr:hover {
+  @apply bg-white/10;
+}
