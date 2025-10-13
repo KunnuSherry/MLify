@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import upload
+from fastapi.staticfiles import StaticFiles
+from routers.upload import router as upload_router
 
 app = FastAPI()
 
@@ -12,4 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(upload.router)
+# Mount static files for graphs
+app.mount("/static/graphs", StaticFiles(directory="static/graphs"), name="graphs")
+
+# Include upload router
+app.include_router(upload_router)
