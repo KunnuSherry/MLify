@@ -207,7 +207,7 @@ def process_data(req):
             combined_corr.update(cat_analysis["correlations"])
 
         sorted_corr = sorted(combined_corr.items(), key=lambda kv: abs(kv[1]), reverse=True)
-        top_features = sorted_corr[:3]  # top 3
+        top_features = sorted_corr[1:4]  # top 3
         low_features = sorted_corr[-5:]
         insights = [{"top_features": [{k:v} for k,v in top_features]}, {"low_features": [{k:v} for k,v in low_features]}]
 
@@ -218,26 +218,41 @@ def process_data(req):
             import json, textwrap
             GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-            # compact top-k for prompt
+            # compact top-k for prompt (adds direction + strength)
             def _top_k(d, k=10):
                 if not isinstance(d, dict):
                     return []
-                return [{"feature": kk, "corr": float(vv)} for kk, vv in sorted(d.items(), key=lambda kv: abs(kv[1]), reverse=True)[:k]]
+                sorted_items = sorted(d.items(), key=lambda kv: abs(kv[1]), reverse=True)[:k]
+                return [
+                    {
+                        "feature": kk,
+                        "corr": float(vv),
+                        "direction": "positive" if vv > 0 else "negative",
+                        "strength": "strong" if abs(vv) >= 0.5 else "moderate" if abs(vv) >= 0.3 else "weak"
+                    }
+                    for kk, vv in sorted_items
+                ]
 
-            numeric_top = _top_k(numeric_analysis.get("correlations") or {}, 10)
-            cat_top = _top_k(cat_analysis.get("correlations") or {}, 10)
+            # remove target-self correlation
+            numeric_corrs = numeric_analysis.get("correlations") or {}
+            numeric_corrs = {k: v for k, v in numeric_corrs.items() if k != target}
+            numeric_top = _top_k(numeric_corrs, 10)
+
+            cat_corrs = cat_analysis.get("correlations") or {}
+            cat_corrs = {k: v for k, v in cat_corrs.items() if k != target}
+            cat_top = _top_k(cat_corrs, 10)
 
             # Fallback bullets to ensure UI shows something even if AI fails
             def _fallback_points():
                 pts = []
                 if numeric_top:
                     f, c = numeric_top[0]["feature"], numeric_top[0]["corr"]
-                    pts.append(f"{f} has the strongest numeric link to {target} (|corr|={abs(c):.2f}); prioritize it.")
+                    pts.append(f"{f} shows a {'positive' if c > 0 else 'negative'} impact on {target} (|corr|={abs(c):.2f}); may drive key outcomes.")
                 if cat_top:
                     f, c = cat_top[0]["feature"], cat_top[0]["corr"]
-                    pts.append(f"Category '{f}' is highly associated with {target}; segment analysis or model by its levels.")
+                    pts.append(f"Category '{f}' has a {'strong' if abs(c) > 0.5 else 'moderate'} link with {target}; investigate level differences.")
                 if len(pts) < 3:
-                    pts.append("Weak/negative correlations suggest trying interactions or non-linear models before pruning.")
+                    pts.append("Correlations hint at underlying behavioral or process drivers worth exploring via regression or segmentation.")
                 return pts[:3]
 
             if not GEMINI_API_KEY:
@@ -247,22 +262,22 @@ def process_data(req):
                 import google.generativeai as genai
                 genai.configure(api_key=GEMINI_API_KEY)
 
-                # Use a model that supports generateContent on your SDK version
-                ai_model = "gemini-1.5-flash"  # previously 'gemini-1.5-pro' caused 404 on v1beta
+                ai_model = "gemini-1.5-flash"
 
                 system_instructions = textwrap.dedent(f"""
-                You are a senior data analyst.
+                You are a senior data analyst writing executive insights.
+
                 You receive:
                   • the target column name
-                  • top correlations of numeric features with the target (Pearson)
-                  • top correlations of encoded categorical features with the target
+                  • top correlations of numeric and categorical features with the target
                   • dataset shape (rows, columns)
 
                 TASK:
-                  • Produce 3 concise, decision-ready bullets (max ~20 words each).
-                  • Interpret significance; don't just restate numbers.
-                  • Mention negative or weak relationships when relevant.
-                  • No code, no tables—just bullets.
+                  • Write exactly 3 deep, decision-oriented one-liners (max 25 words each).
+                  • Interpret correlations with possible reasons or implications.
+                  • Avoid trivial statements (e.g., target correlating with itself) and generic advice.
+                  • Prefer causal or actionable framing (e.g., “Higher engagement predicts retention gains.”).
+                  • Return a pure JSON list of 3 strings—no bullets or markdown.
                 """)
 
                 user_payload = {
@@ -271,17 +286,18 @@ def process_data(req):
                     "numeric_correlations_top": numeric_top,
                     "categorical_correlations_top": cat_top,
                 }
+
                 prompt = (
                     "DATA (JSON):\n"
                     f"{user_payload}\n\n"
                     "OUTPUT:\n"
-                    "Return exactly 3 bullets as a JSON list of strings."
+                    "Return exactly 3 insights as a JSON list of strings."
                 )
 
                 model = genai.GenerativeModel(ai_model)
                 resp = model.generate_content(system_instructions + "\n\n" + prompt)
 
-                # Robust extraction: resp.text OR candidates/parts
+                # Robust extraction
                 def _resp_to_text(r):
                     try:
                         t = getattr(r, "text", None)
@@ -296,7 +312,7 @@ def process_data(req):
                     return ""
 
                 text = _resp_to_text(resp).strip()
-                print("Gemini raw response:", text)  # optional debug
+                print("Gemini raw response:", text)
 
                 # Parse JSON list; fallback to line split
                 try:
@@ -316,15 +332,16 @@ def process_data(req):
                     ai_insights = _fallback_points()
 
                 ai_insights = [s[:220] for s in ai_insights][:3]
+
         except Exception as e:
             print("Gemini AI block error:", e)
-            # fallback insights so frontend always shows something
             try:
                 ai_insights = _fallback_points()
             except Exception:
                 ai_insights = []
 
         print("AI Insights:", ai_insights)
+
 
         return {
             "status": "success",

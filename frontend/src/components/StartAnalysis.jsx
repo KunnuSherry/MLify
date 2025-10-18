@@ -542,7 +542,7 @@ const StartAnalysis = () => {
 
                   {Array.isArray(analysisResult.categorical_analysis?.plots) && (
                     <div>
-                      <div className="mb-2 text-sm font-medium">Categorical Feature Plots</div>
+                      <div className="mb-2 text-sm font-medium">Top 3 Categorical Feature Plots</div>
                       <ImageGrid
                         items={analysisResult.categorical_analysis.plots.map((url, idx) => ({
                           url: getImageUrl(url),
