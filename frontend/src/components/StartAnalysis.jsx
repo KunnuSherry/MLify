@@ -32,8 +32,8 @@ const GlowCard = ({ children, className = "" }) => (
 const Pill = ({ active, done, children }) => (
   <div
     className={`inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-semibold transition-all duration-300 ${active || done
-        ? "bg-indigo-500 text-white shadow-[0_6px_20px_rgba(99,102,241,0.45)]"
-        : "bg-white/10 text-white/60"
+      ? "bg-indigo-500 text-white shadow-[0_6px_20px_rgba(99,102,241,0.45)]"
+      : "bg-white/10 text-white/60"
       }`}
   >
     {done ? <CheckCircle size={16} /> : children}
@@ -401,6 +401,7 @@ const StartAnalysis = () => {
           )}
 
           {/* Step 4: Nicely-presented analysis results */}
+          {/* Step 4: Nicely-presented analysis results */}
           {currentStep === 4 && analysisResult && (
             <div className="space-y-10">
               {/* Missing Values */}
@@ -430,7 +431,7 @@ const StartAnalysis = () => {
 
               <Divider />
 
-              {/* AI Insights (Gemini) */}
+              {/* AI Insights */}
               {analysisResult?.ai_insights?.length > 0 && (
                 <>
                   <Divider />
@@ -460,6 +461,7 @@ const StartAnalysis = () => {
                 </>
               )}
 
+              <Divider />
 
               {/* Feature Types */}
               {(() => {
@@ -472,20 +474,16 @@ const StartAnalysis = () => {
                       title="Feature Types"
                       subtitle="Counts and lists of numeric vs categorical predictors."
                     />
-
                     <div className="mb-4 grid grid-cols-2 gap-3 sm:max-w-md">
                       <StatChip label="Numeric features" value={typeStep.numeric_cols?.length ?? 0} />
                       <StatChip label="Categorical features" value={typeStep.categorical_cols?.length ?? 0} />
                     </div>
-
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                         <div className="mb-2 text-sm font-medium">Numeric</div>
                         <div className="flex flex-wrap gap-2">
                           {(typeStep.numeric_cols || []).map((c) => (
-                            <span key={c} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
-                              {c}
-                            </span>
+                            <span key={c} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">{c}</span>
                           ))}
                         </div>
                       </div>
@@ -493,9 +491,7 @@ const StartAnalysis = () => {
                         <div className="mb-2 text-sm font-medium">Categorical</div>
                         <div className="flex flex-wrap gap-2">
                           {(typeStep.categorical_cols || []).map((c) => (
-                            <span key={c} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
-                              {c}
-                            </span>
+                            <span key={c} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">{c}</span>
                           ))}
                         </div>
                       </div>
@@ -506,14 +502,38 @@ const StartAnalysis = () => {
 
               <Divider />
 
-              {/* Correlation Graphs */}
+              {/* Model Info (New) */}
+              {analysisResult.model_info && (
+                <div>
+                  <SectionHeader
+                    icon={Brain}
+                    title="Trained Model Info"
+                    subtitle="Performance metrics and download link for your trained model."
+                  />
+                  <KeyValueTable obj={analysisResult.model_info} />
+                  {analysisResult.model_info.download_url && (
+                    <div className="mt-3">
+                      <a
+                        href={analysisResult.model_info.download_url}
+                        download
+                        className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-700"
+                      >
+                        Download Trained Model (.pkl)
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <Divider />
+
+              {/* Correlation & Feature Plots */}
               <div>
                 <SectionHeader
                   icon={ImageIcon}
                   title="Correlation & Feature Plots"
                   subtitle="Auto-generated visualizations from your backend results."
                 />
-
                 <div className="space-y-6">
                   {analysisResult.numeric_analysis?.corr_heatmap && (
                     <GlowCard className="p-4">
@@ -564,7 +584,6 @@ const StartAnalysis = () => {
                     title="Top 3 Highly Related Features"
                     subtitle="Strongest relationships to your selected target variable."
                   />
-
                   <div className="space-y-3">
                     {analysisResult.insights[0].top_features.slice(0, 3).map((feat, idx) => {
                       const [name, valueRaw] = Object.entries(feat)[0];
@@ -590,6 +609,7 @@ const StartAnalysis = () => {
               )}
             </div>
           )}
+
 
           {/* Processing state (visuals only improved) */}
           {isProcessing && currentStep !== 4 && (
