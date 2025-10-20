@@ -94,7 +94,7 @@
 
 <div align="center">
 
-![Interactive UI](./images/interactive-ui.png)
+![Interactive UI](./images/image5.gif)
 
 </div>
 
@@ -231,7 +231,7 @@ cd project-root
 
 <div align="center">
 
-![Backend Setup](./images/backend-setup.png)
+![Backend Setup](./images/image6.png)
 
 </div>
 
@@ -268,7 +268,7 @@ uvicorn app.main:app --reload
 
 <div align="center">
 
-![Frontend Setup](./images/frontend-setup.png)
+![Frontend Setup](./images/image7.png)
 
 </div>
 
@@ -318,12 +318,6 @@ SUPABASE_KEY=your_supabase_key
 </div>
 
 ## 📖 **Usage Guide**
-
-<div align="center">
-
-![Usage Flow](./images/usage-flow.png)
-
-</div>
 
 <table>
 <tr>
@@ -382,8 +376,7 @@ Analyze:
 
 | Model | Use Case | Description |
 |-------|----------|-------------|
-| 📈 **Linear Regression** | Numeric Target | Predict continuous values |
-| 🎯 **Logistic Regression** | Categorical Target | Binary/Multi-class classification |
+
 | 🌲 **Random Forest** | Complex Patterns | Feature importance & high accuracy |
 
 </div>
@@ -499,26 +492,11 @@ Update paths in `utils.py` or `main.py` for cloud storage.
 
 <div align="center">
 
-**MIT License** © [Your Name]
+**MIT License** ©KunnuSherry
 
 <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" />
 
 </div>
-
----
-
-## 💡 **Demo & Screenshots**
-
-<div align="center">
-
-### 🖥️ **Application Workflow**
-
-![App Workflow](./images/app-workflow.png)
-
-*Complete analysis workflow from upload to model download*
-
-</div>
-
 ---
 
 <div align="center">
