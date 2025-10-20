@@ -6,3 +6,4 @@ matplotlib
 scikit-learn
 python-dotenv
 google-generativeai
+supabase

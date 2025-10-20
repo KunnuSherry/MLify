@@ -194,16 +194,31 @@ const StartAnalysis = () => {
     setIsProcessing(true);
     setAnalysisResult(null);
 
+    // SAFELY derive a string URL first, then use it
+    const fileUrlToSend =
+      typeof fileData?.file_url === "string"
+        ? fileData.file_url
+        : (fileData?.file_url?.publicURL ||
+          fileData?.file_url?.publicUrl ||
+          "");
+
+    console.log("fileData.file_url typeof/value ->", typeof fileData?.file_url, fileData?.file_url);
+    console.log("Posting file_url ->", fileUrlToSend);
+
+    if (!fileUrlToSend) {
+      alert("Missing file_url to process.");
+      setIsProcessing(false);
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:8000/process", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          filename: fileData.filename,
+          file_url: fileUrlToSend,       // <-- guaranteed string now
           target: selectedTarget,
-          mode: mode,
+          mode: mode,                    // "business_insights" | "model_trainer"
         }),
       });
 
@@ -223,6 +238,7 @@ const StartAnalysis = () => {
       setIsProcessing(false);
     }
   };
+
 
   const steps = [
     { number: 1, title: "Upload", icon: Upload },
