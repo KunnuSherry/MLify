@@ -2,10 +2,13 @@ import React from 'react'
 import LiquidEther from './LiquidEther';
 import BlurText from "./BlurText";
 import ElectricBorder from './ElectricBorder'
+import { useNavigate } from 'react-router-dom';
 
 
 
 const Start = () => {
+    const navigate = useNavigate();
+
     return (
         <div style={{ width: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
             <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
